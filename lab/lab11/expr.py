@@ -107,6 +107,8 @@ class Name(Expr):
         None
         """
         "*** YOUR CODE HERE ***"
+        if self.var_name in env:
+            return env[self.var_name]
 
 
     def __str__(self):
@@ -173,7 +175,12 @@ class CallExpr(Expr):
         >>> read('add(mul(3, 4), b)').eval(new_env)
         Number(14)
         """
+        # 参考https://github.com/wuxueqian14/cs61a-spring-2021/blob/main/lab/lab11/expr.py
         "*** YOUR CODE HERE ***"
+        function = self.operator.eval(env)
+        # 这里调用的“apply”是“PrimitiveFunction”类中的方法
+        return function.apply([operand.eval(env) for operand in self.operands])
+
 
 
     def __str__(self):
@@ -284,6 +291,10 @@ class LambdaFunction(Value):
             raise TypeError("Oof! Cannot apply number {} to arguments {}".format(
                 comma_separated(self.parameters), comma_separated(arguments)))
         "*** YOUR CODE HERE ***"
+        new_env = self.parent.copy()
+        for para, arg in zip(self.parameters, arguments):
+            new_env[para] = arg
+        return self.body.eval(new_env)
 
 
     def __str__(self):
